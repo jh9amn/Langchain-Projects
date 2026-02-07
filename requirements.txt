@@ -1,6 +1,32 @@
-langchain-openai
+# Core
 langchain
-langchain-community
-python-dotenv
 langchain-core
+langchain-community
+langchain-openai
+langchain-text-splitters
+langchain-classic
+
+# LLMs
+openai
+langchain_groq
+
+# Embeddings
+sentence_transformers
+langchain_huggingface
+
+# Vector store (choose ONE)
+faiss-cpu
+# chromadb
+# langchain_chroma
+
+# Document loaders
+pypdf
+bs4
+wikipedia
+arxiv
+
+# App & utils
 streamlit
+python-dotenv
+pandas
+ipykernel
