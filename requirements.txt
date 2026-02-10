@@ -5,6 +5,7 @@ langchain-community
 langchain-openai
 langchain-text-splitters
 langchain-classic
+langchain-chroma
 
 # LLMs
 openai
