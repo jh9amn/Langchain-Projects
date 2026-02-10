@@ -29,6 +29,7 @@ beautifulsoup4
 unstructured[all-docs]
 pytesseract
 pillow
+opencv-python-headless
 
 # App & utils
 streamlit
