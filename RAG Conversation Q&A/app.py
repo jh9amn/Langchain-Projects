@@ -30,7 +30,7 @@ embedddings = HuggingFaceEmbeddings(
 )
 
 ## Set Up streamlit App
-st.title("Conversational RAG with PDF uploads and chat History")
+st.title("Conversational RAG App with chat History")
 st.write("Upload pdf's and chat with their content")
 
 ## Input the GROQ API Key
