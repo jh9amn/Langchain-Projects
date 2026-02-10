@@ -10,8 +10,13 @@ from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
-
+import tempfile
+from langchain_community.document_loaders import (
+    PyPDFLoader, 
+    TextLoader, 
+    UnstructuredImageLoader, 
+    WebBaseLoader
+)
 import os
 from dotenv import load_dotenv
 
@@ -48,22 +53,66 @@ if api_key:
     if 'store' not in st.session_state:
         st.session_state.store={}
     
-    uploaded_files = st.file_uploader("Choose a PDF file", type='pdf', accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Upload Documents",
+                                    type=['pdf', 'txt', 'png', 'jpg', 'jpeg'],
+                                    accept_multiple_files=True
+    )
+    # url_input = ""
+    # if not uploaded_files:
+    #     url_input = st.text_input("Paste a web link (e.g., https://example.com)")
+    
+    url_input = st.text_input("Paste a web link (e.g., https://example.com)")
+
     
     ## Processed uploaded PDF's
-    if uploaded_files:
-        documents = []
-        for uploaded_file in uploaded_files:
-            temppdf = f"./temp.pdf"
-            with open(temppdf, "wb") as file:
-                file.write(uploaded_file.getvalue())
-                file_name=uploaded_file.name
+    # if uploaded_files:
+    #     documents = []
+    #     for uploaded_file in uploaded_files:
+    #         temppdf = f"./temp.pdf"
+    #         with open(temppdf, "wb") as file:
+    #             file.write(uploaded_file.getvalue())
+    #             file_name=uploaded_file.name
                 
-            loader = PyPDFLoader(temppdf)
-            docs = loader.load()
-            documents.extend(docs)
+    #         loader = PyPDFLoader(temppdf)
+    #         docs = loader.load()
+    #         documents.extend(docs)
             
-            
+    
+    documents = []
+    
+    ## Process files (pdf, text, image)
+    if uploaded_files:
+        for uploaded_file in uploaded_files:
+            extension = uploaded_file.name.split('.')[-1].lower()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{extension}") as tmp_file:
+                tmp_file.write(uploaded_file.getvalue())
+                tmp_path = tmp_file.name
+                
+            try:
+                if extension == "pdf":
+                    loader = PyPDFLoader(tmp_path)
+                elif extension == "txt":
+                    loader = TextLoader(tmp_path)
+                elif extension in ["png", "jpg", "jpeg"]:
+                    # OCR for images
+                    loader = UnstructuredImageLoader(tmp_path)
+                    
+                documents.extend(loader.load())
+            finally:
+                ## clean up the temp file
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+    
+    ## Process Web Links
+    if url_input:
+        try:
+            web_loader = WebBaseLoader(url_input)
+            documents.extend(web_loader.load())
+        except Exception as e:
+            st.error(f"Error loading URL: {e}")
+    
+    
+    if documents:        
         # Split and create embeddings for the documents
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=200)
         splits = text_splitter.split_documents(documents)
@@ -137,5 +186,5 @@ if api_key:
             st.write(st.session_state.store)
             st.write("Assistance:", response["answer"])
             st.write("Chat History:", session_history.messages)
-    else:
-        st.warning("Please enter the GROQ Api key")
+        else:
+            st.warning("Please enter the GROQ Api key")

@@ -25,6 +25,10 @@ pypdf
 bs4
 wikipedia
 arxiv
+beautifulsoup4
+unstructured[all-docs]
+pytesseract
+pillow
 
 # App & utils
 streamlit
