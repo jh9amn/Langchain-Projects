@@ -18,7 +18,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 os.environ['HF_TOKEN'] = os.getenv("HF_TOKEN")
-embedddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2") 
+
+embedddings = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",
+    model_kwargs={'device': 'cpu'}
+)
 
 ## Set Up streamlit App
 st.title("Conversational RAG with PDF uploads and chat History")
