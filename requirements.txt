@@ -40,3 +40,4 @@ pandas
 ipykernel
 arxiv
 wikipedia
+ddgs
