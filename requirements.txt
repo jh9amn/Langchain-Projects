@@ -6,6 +6,8 @@ langchain-openai
 langchain-text-splitters
 langchain-classic
 langchain-chroma
+langchainhub
+langsmith
 
 # LLMs
 openai
@@ -36,3 +38,5 @@ streamlit
 python-dotenv
 pandas
 ipykernel
+arxiv
+wikipedia
