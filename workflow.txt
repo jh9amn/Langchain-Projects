@@ -2,6 +2,8 @@
 
 > conda activate venv/
 
+> source venv/Scripts/activate
+
 > pip install -r requirements.txt
 
 > conda deactivate
@@ -11,3 +13,6 @@
 > Set Env
 
 > python -m streamlit run app.py
+
+# Delete venv
+> rm -rf venv
