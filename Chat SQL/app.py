@@ -45,33 +45,38 @@ if not db_url:
     
 if not api_key:
     st.info("Please enter the Groq API key to proceed.")
+    st.stop()
     
 ## Call LLM model
 llm = ChatGroq(groq_api_key=api_key, model_name="llama-3.1-8b-instant", streaming=True)
 
-@st.cache_resource(ttl=2 * 60 * 60)  # 2 hours
+# @st.cache_resource(ttl=2 * 60 * 60)  # 2 hours
+@st.cache_resource(ttl="2h")
 def configure_db(db_uri, mysql_host=None, mysql_user=None, mysql_password=None, mysql_db=None):
+    try:
+        if db_uri == LOCALDB:
+            dbfilepath = (Path(__file__).parent / "students.db").resolve()
 
-    if db_uri == LOCALDB:
-        dbfilepath = (Path(__file__).parent / "students.db").resolve()
+            if not dbfilepath.exists():
+                st.error(f"Database not found at: {dbfilepath}")
+                st.stop()
 
-        if not dbfilepath.exists():
-            st.error(f"Database not found at: {dbfilepath}")
-            st.stop()
+            engine = create_engine(f"sqlite:///{dbfilepath}")
+            return SQLDatabase(engine)
 
-        engine = create_engine(f"sqlite:///{dbfilepath}")
-        return SQLDatabase(engine)
+        elif db_uri == MYSQL:
+            if not all([mysql_host, mysql_user, mysql_password, mysql_db]):
+                st.error("Please provide all MySQL connection details.")
+                st.stop()
 
-    elif db_uri == MYSQL:
-        if not all([mysql_host, mysql_user, mysql_password, mysql_db]):
-            st.error("Please provide all MySQL connection details.")
-            st.stop()
-
-        engine = create_engine(
-            f"mysql+mysqlconnector://{mysql_user}:{mysql_password}"
-            f"@{mysql_host}/{mysql_db}"
-        )
-        return SQLDatabase(engine)
+            engine = create_engine(
+                f"mysql+mysqlconnector://{mysql_user}:{mysql_password}"
+                f"@{mysql_host}/{mysql_db}"
+            )
+            return SQLDatabase(engine)
+    except Exception as e:
+        st.error(f"Connection Error: {e}")
+        st.stop()
         
 if db_url == MYSQL:
     db=configure_db(db_url, mysql_host, mysql_user, mysql_password, mysql_db)
@@ -87,10 +92,11 @@ agent = create_sql_agent(
     toolkit=toolkit,
     verbose=True,
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    handle_parsing_errors=True  # Added to handle LLM format errors
 )
 
 if "messages" not in st.session_state or st.sidebar.button("Clear Conversation"):
-    st.session_state["messages"] = [{"role": "assistant", "content": "How can I assist you ?"}]
+    st.session_state["messages"] = [{"role": "assistant", "content": "How can I assist you with your database?"}]
     
 ## Apending Messages
 for msg in st.session_state.messages:
