@@ -41,3 +41,4 @@ ipykernel
 arxiv
 wikipedia
 ddgs
+numexpr
