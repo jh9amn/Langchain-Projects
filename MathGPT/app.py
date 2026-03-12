@@ -30,7 +30,7 @@ wikipedia_wrapper = WikipediaAPIWrapper()
 wikipedia_tool = Tool(
     name="Wikipedia",
     func=wikipedia_wrapper.run,
-    description="Useful only for general knowledge questions about people, places, history, or science. Not for math calculations."
+    description="A tool for searching the Internet to find the vatious information on the topics mentioned"
 )
 
 
@@ -39,17 +39,13 @@ math_chain=LLMMathChain.from_llm(llm=llm)
 calculator=Tool(
     name="Calculator",
     func=math_chain.run,
-    description="Useful for solving math problems, arithmetic calculations, and word problems involving numbers."
+    description="A tools for answering math related questions. Only input mathematical expression need to bed provided"
 )
 
-
-prompt = """
-You are a reasoning assistant.
-
-Solve the following problem step by step and explain clearly.
-
-Question: {question}
-
+prompt="""
+Your a agent tasked for solving users mathemtical question. Logically arrive at the solution and provide a detailed explanation
+and display it point wise for the question below
+Question:{question}
 Answer:
 """
 
@@ -86,38 +82,32 @@ for msg in st.session_state.messages:
     
 
 ## function to generate the response
-def generate_response(question):
-    response = assistant_agent.invoke({"input": question})
-    return response
+# def generate_response(question):
+#     response = assistant_agent.invoke({"input": question})
+#     return response
 
 ## Lets start the interaction
-question = st.text_area("Enter your question:", "A box has 9 red balls and 11 blue balls. If 3 red balls and 5 blue balls are taken out, how many balls remain in the box?")
+question=st.text_area("Enter youe question:","I have 5 bananas and 7 grapes. I eat 2 bananas and give away 3 grapes. Then I buy a dozen apples and 2 packs of blueberries. Each pack of blueberries contains 25 berries. How many total pieces of fruit do I have at the end?")
 
-if st.button("Find my answer"):
+if st.button("find my answer"):
     if question:
-        with st.spinner("Generating response..."):
-            
-            # Save user message
-            st.session_state.messages.append({
-                "role": "user",
-                "content": question
-            })
-
+        with st.spinner("Generate response.."):
+            st.session_state.messages.append({"role":"user","content":question})
             st.chat_message("user").write(question)
 
-            # LangChain callback
             st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
 
-            # Run agent
             response = assistant_agent.run(question, callbacks=[st_cb])
 
-            # Save assistant response
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": response
-            })
-
-            st.chat_message("assistant").write(response)
+            st.session_state.messages.append({"role":"assistant","content":response})
+            st.write("### Response:")
+            st.success(response)
 
     else:
-        st.warning("Please enter the question...")
+        st.warning("Please enter the question")
+
+
+
+
+
+
