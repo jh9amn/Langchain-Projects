@@ -50,3 +50,12 @@ huggingface_hub
 validators==0.28.1
 youtube-transcript-api
 pytube
+
+
+## PDF Query
+cassio
+datasets
+langchain
+openai
+tiktoken
+PyPDF2
