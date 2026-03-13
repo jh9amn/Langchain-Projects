@@ -8,6 +8,8 @@ langchain-classic
 langchain-chroma
 langchainhub
 langsmith
+langchain_huggingface
+
 
 # LLMs
 openai
@@ -42,3 +44,9 @@ arxiv
 wikipedia
 ddgs
 numexpr
+
+huggingface_hub
+
+validators==0.28.1
+youtube-transcript-api
+pytube
